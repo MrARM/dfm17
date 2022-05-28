@@ -7,6 +7,9 @@
 #define RADIO_CS_Pin GPIO_PIN_2
 #define RADIO_CS_GPIO_Port GPIOB
 
+
+SPI_HandleTypeDef &spi;
+
 // Functions
 void SI4X6X_init(uint32_t ref_freq, uint8_t tcxo);
 void SI4X6X_deinit(uint8_t tcxo);
@@ -31,5 +34,17 @@ void SI4X6X_tx_FSK_rtty(uint8_t * packet, uint8_t length, uint16_t baud, uint32_
 						uint32_t ref_freq, uint16_t modem_freq_dev, uint16_t modem_freq_offset);
 void SI4X6X_tx_GFSK_aprs(uint8_t * bitstream, uint16_t length, uint32_t frequency, uint32_t ref_freq, uint16_t modem_freq_offset);
 
+// Utils
+void SPI_assert_SS(){
+	HAL_GPIO_WritePin(RADIO_CS_GPIO_Port, RADIO_CS_Pin, GPIO_PIN_RESET);
+}
+
+void SPI_deassert_SS(){
+	HAL_GPIO_WritePin(RADIO_CS_GPIO_Port, RADIO_CS_Pin, GPIO_PIN_SET);
+}
+
+HAL_StatusTypeDef SPI_master_transmit(uint8_t* data){
+	return HAL_SPI_Transmit(&spi, data, 1, 100);
+}
 
 #endif // SI4063_H

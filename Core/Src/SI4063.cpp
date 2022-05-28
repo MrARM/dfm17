@@ -3,7 +3,7 @@
 		NSEL	PB2 (SS)
 		SDI		PB3 (MOSI)
 		SDO		PB4 (MISO)
-		SCLK	PB5 (SCK)
+		SCLK	PB5 (SCK)f
 
 		GPIO0	PD2 (INT0 - external interrupt)		CTS (output) - HIGH when able to receive
 		GPIO1	PD3 (INT1 - external interrupt)		TX_DATA_CLK (output) - for use in TX Direct Synchronous Mode
@@ -61,11 +61,11 @@ void SI4X6X_init(uint32_t ref_freq, uint8_t tcxo)
 	uint8_t rx_buffer[16];
 
 	SPI_assert_SS(); // CS
-	SPI_master_transmit(0x11);											// SET_PROPERTY (CMD)
-	SPI_master_transmit(0x00);											// GLOBAL (group)
-	SPI_master_transmit(0x01);											// 1 (num_props)
-	SPI_master_transmit(0x00);											// GLOBAL_XO_TUNE (start_prop)
-	SPI_master_transmit(0x00);											// FASTEST_FREQUENCY (Lowest capacitance)
+	SPI_master_transmit((uint8_t*)0x11);											// SET_PROPERTY (CMD)
+	SPI_master_transmit((uint8_t*)0x00);											// GLOBAL (group)
+	SPI_master_transmit((uint8_t*)0x01);											// 1 (num_props)
+	SPI_master_transmit((uint8_t*)0x00);											// GLOBAL_XO_TUNE (start_prop)
+	SPI_master_transmit((uint8_t*)0x00);											// FASTEST_FREQUENCY (Lowest capacitance)
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 
@@ -88,18 +88,18 @@ void SI4X6X_init(uint32_t ref_freq, uint8_t tcxo)
 	_delay_ms(10);														// wait for POR to finish
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x02);											// POWER_UP - 15ms
-	SPI_master_transmit(0x01);
-	SPI_master_transmit(0x01);											// 0x00 - XTAL, 0x01 - TCXO
-	SPI_master_transmit(ref_freq / 16777216);
-	SPI_master_transmit(ref_freq % 16777216 / 65536);
-	SPI_master_transmit(ref_freq % 16777216 % 65536 / 256);
-	SPI_master_transmit(ref_freq % 16777216 % 65536 % 256);
+	SPI_master_transmit((uint8_t*)0x02);											// POWER_UP - 15ms
+	SPI_master_transmit((uint8_t*)0x01);
+	SPI_master_transmit((uint8_t*)0x01);											// 0x00 - XTAL, 0x01 - TCXO
+	SPI_master_transmit((uint8_t*)(ref_freq / 16777216));
+	SPI_master_transmit((uint8_t*)(ref_freq % 16777216 / 65536));
+	SPI_master_transmit((uint8_t*)(ref_freq % 16777216 % 65536 / 256));
+	SPI_master_transmit((uint8_t*)(ref_freq % 16777216 % 65536 % 256));
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x20);											// GET_INT_STATUS (clear interrupts)
+	SPI_master_transmit((uint8_t*)0x20);											// GET_INT_STATUS (clear interrupts)
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 9);
 
@@ -147,8 +147,8 @@ void SI4X6X_rx_CTS(uint8_t * rx_buffer, uint8_t len)
 	{
 		SPI_assert_SS();
 
-		SPI_master_transmit(0x44);										// READ_CMD_BUFF
-		_cts = SPI_master_transmit(0x00);
+		SPI_master_transmit((uint8_t*)0x44);										// READ_CMD_BUFF
+		_cts = SPI_master_transmit((uint8_t*)0x00);
 
 		if(_cts == 0xFF) break;
 		SPI_deassert_SS();
@@ -158,7 +158,7 @@ void SI4X6X_rx_CTS(uint8_t * rx_buffer, uint8_t len)
 
 	for(uint8_t i = 1; i < len; i++)
 	{
-		rx_buffer[i] = SPI_master_transmit(0x00);
+		rx_buffer[i] = SPI_master_transmit((uint8_t*)0x00);
 	}
 
 	SPI_deassert_SS();
@@ -199,14 +199,14 @@ void SI4X6X_setup_pins(uint8_t gpio0, uint8_t gpio1, uint8_t gpio2, uint8_t gpio
 	uint8_t rx_buffer[16];
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x13);											// GPIO_PIN_CFG
-	SPI_master_transmit(gpio0);											// GPIO0
-	SPI_master_transmit(gpio1);											// GPIO1
-	SPI_master_transmit(gpio2);											// GPIO2
-	SPI_master_transmit(gpio3);											// GPIO3
-	SPI_master_transmit(nirq);											// NIRQ
-	SPI_master_transmit(sdo);											// SDO
-	SPI_master_transmit(0x00);											// Drive Strength
+	SPI_master_transmit((uint8_t*)0x13);											// GPIO_PIN_CFG
+	SPI_master_transmit((uint8_t*)gpio0);											// GPIO0
+	SPI_master_transmit((uint8_t*)gpio1);											// GPIO1
+	SPI_master_transmit((uint8_t*)gpio2);											// GPIO2
+	SPI_master_transmit((uint8_t*)gpio3);											// GPIO3
+	SPI_master_transmit((uint8_t*)nirq);											// NIRQ
+	SPI_master_transmit((uint8_t*)sdo);											// SDO
+	SPI_master_transmit((uint8_t*)0x00);											// Drive Strength
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 8);
 }
@@ -230,8 +230,8 @@ void SI4X6X_change_state(uint8_t state)
 	uint8_t rx_buffer[16];
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x34);											// CHANGE_STATE
-	SPI_master_transmit(state);
+	SPI_master_transmit((uint8_t*)0x34);											// CHANGE_STATE
+	SPI_master_transmit((uint8_t*)state);
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 }
@@ -243,11 +243,11 @@ void SI4X6X_change_state(uint8_t state)
 void SI4X6X_start_TX(uint8_t channel)
 {
 	SPI_assert_SS();
-	SPI_master_transmit(0x31);											// START_TX
-	SPI_master_transmit(channel);										// CHANNEL
-	SPI_master_transmit((1 << 4) | 0x00);								// CONDITION - SLEEP after end of transmission
-	SPI_master_transmit(0x00);											// TX_LEN
-	SPI_master_transmit(0x00);											// TX_LEN
+	SPI_master_transmit((uint8_t*)0x31);											// START_TX
+	SPI_master_transmit((uint8_t*)channel);										// CHANNEL
+	SPI_master_transmit((uint8_t*)((1 << 4) | 0x00));								// CONDITION - SLEEP after end of transmission
+	SPI_master_transmit((uint8_t*)0x00);											// TX_LEN
+	SPI_master_transmit((uint8_t*)0x00);											// TX_LEN
 	SPI_deassert_SS();
 
 	SI4X6X_check_CTS();
@@ -268,7 +268,7 @@ void SI4X6X_start_TX(uint8_t channel)
 void SI4X6X_get_part_info(uint8_t * buffer)
 {
 	SPI_assert_SS();
-	SPI_master_transmit(0x01);											// PART_INFO
+	SPI_master_transmit((uint8_t*)0x01);											// PART_INFO
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(buffer, 9);
 }
@@ -286,7 +286,7 @@ void SI4X6X_get_part_info(uint8_t * buffer)
 void SI4X6X_get_func_info(uint8_t * buffer)
 {
 	SPI_assert_SS();
-	SPI_master_transmit(0x10);											// FUNC_INFO
+	SPI_master_transmit((uint8_t*)0x10);											// FUNC_INFO
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(buffer, 7);
 }
@@ -302,9 +302,9 @@ uint16_t SI4X6X_get_temperature(void)
 	uint8_t rx_buffer[16];
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x14);											// GET_ADC_READING
-	SPI_master_transmit(0b00010000);									// TEMPERATURE_EN
-	SPI_master_transmit(0xC0);											// ADC rate of conversion 325Hz
+	SPI_master_transmit((uint8_t*)0x14);											// GET_ADC_READING
+	SPI_master_transmit((uint8_t*)0b00010000);									// TEMPERATURE_EN
+	SPI_master_transmit((uint8_t*)0xC0);											// ADC rate of conversion 325Hz
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 7);
 
@@ -363,23 +363,23 @@ void SI4X6X_set_frequency(uint32_t frequency, uint32_t ref_freq)
 	uint8_t rx_buffer[16];
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x11);											// SET_PROPERTY (CMD)
-	SPI_master_transmit(0x20);											// MODEM (group)
-	SPI_master_transmit(0x01);											// 1 (num_props)
-	SPI_master_transmit(0x51);											// MODEM_CLKGEN_BAND (start_prop)
-	SPI_master_transmit(0b1000 + band);									// data (SY_SEL = Div-by-2, band)
+	SPI_master_transmit((uint8_t*)0x11);											// SET_PROPERTY (CMD)
+	SPI_master_transmit((uint8_t*)0x20);											// MODEM (group)
+	SPI_master_transmit((uint8_t*)0x01);											// 1 (num_props)
+	SPI_master_transmit((uint8_t*)0x51);											// MODEM_CLKGEN_BAND (start_prop)
+	SPI_master_transmit((uint8_t*)(0b1000 + band));									// data (SY_SEL = Div-by-2, band)
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x11);											// SET_PROPERTY (CMD)
-	SPI_master_transmit(0x40);											// FREQ_CONTROL (group)
-	SPI_master_transmit(0x04);											// 4 (num_props)
-	SPI_master_transmit(0x00);											// FREQ_CONTROL_INTE (start_prop)
-	SPI_master_transmit(n);												// data (FREQ_CONTROL_INTE)
-	SPI_master_transmit(m2);											// data (FREQ_CONTROL_FRAC)
-	SPI_master_transmit(m1);											// data (FREQ_CONTROL_FRAC)
-	SPI_master_transmit(m0);											// data (FREQ_CONTROL_FRAC)
+	SPI_master_transmit((uint8_t*)0x11);											// SET_PROPERTY (CMD)
+	SPI_master_transmit((uint8_t*)0x40);											// FREQ_CONTROL (group)
+	SPI_master_transmit((uint8_t*)0x04);											// 4 (num_props)
+	SPI_master_transmit((uint8_t*)0x00);											// FREQ_CONTROL_INTE (start_prop)
+	SPI_master_transmit((uint8_t*)n);												// data (FREQ_CONTROL_INTE)
+	SPI_master_transmit((uint8_t*)m2);											// data (FREQ_CONTROL_FRAC)
+	SPI_master_transmit((uint8_t*)m1);											// data (FREQ_CONTROL_FRAC)
+	SPI_master_transmit((uint8_t*)m0);											// data (FREQ_CONTROL_FRAC)
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 }
@@ -403,13 +403,13 @@ void SI4X6X_set_frequency_deviation(uint32_t deviation)
 	uint8_t rx_buffer[16];
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x11);											// SET_PROPERTY (CMD)
-	SPI_master_transmit(0x20);											// MODEM (group)
-	SPI_master_transmit(0x03);											// 3 (num_props)
-	SPI_master_transmit(0x0A);											// MODEM_FREQ_DEV (start_prop)
-	SPI_master_transmit((deviation >> 16) & 0xFF);						// data (MODEM_FREQ_DEV)
-	SPI_master_transmit((deviation >> 8) & 0xFF);						// data (MODEM_FREQ_DEV)
-	SPI_master_transmit(deviation & 0xFF);								// data (MODEM_FREQ_DEV)
+	SPI_master_transmit((uint8_t*)0x11);											// SET_PROPERTY (CMD)
+	SPI_master_transmit((uint8_t*)0x20);											// MODEM (group)
+	SPI_master_transmit((uint8_t*)0x03);											// 3 (num_props)
+	SPI_master_transmit((uint8_t*)0x0A);											// MODEM_FREQ_DEV (start_prop)
+	SPI_master_transmit((uint8_t*)((deviation >> 16) & 0xFF));						// data (MODEM_FREQ_DEV)
+	SPI_master_transmit((uint8_t*)((deviation >> 8) & 0xFF));						// data (MODEM_FREQ_DEV)
+	SPI_master_transmit((uint8_t*)(deviation & 0xFF));								// data (MODEM_FREQ_DEV)
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 }
@@ -431,12 +431,12 @@ void SI4X6X_set_frequency_offset(uint32_t offset)
 	uint8_t rx_buffer[16];
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x11);											// SET_PROPERTY (CMD)
-	SPI_master_transmit(0x20);											// MODEM (group)
-	SPI_master_transmit(0x02);											// 2 (num_props)
-	SPI_master_transmit(0x0D);											// MODEM_FREQ_OFFSET (start_prop)
-	SPI_master_transmit((offset >> 8) & 0xFF);							// data (MODEM_FREQ_OFFSET)
-	SPI_master_transmit(offset & 0xFF);									// data (MODEM_FREQ_OFFSET)
+	SPI_master_transmit((uint8_t*)0x11);											// SET_PROPERTY (CMD)
+	SPI_master_transmit((uint8_t*)0x20);											// MODEM (group)
+	SPI_master_transmit((uint8_t*)0x02);											// 2 (num_props)
+	SPI_master_transmit((uint8_t*)0x0D);											// MODEM_FREQ_OFFSET (start_prop)
+	SPI_master_transmit((uint8_t*)((offset >> 8) & 0xFF));							// data (MODEM_FREQ_OFFSET)
+	SPI_master_transmit((uint8_t*)(offset & 0xFF));									// data (MODEM_FREQ_OFFSET)
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 }
@@ -467,11 +467,11 @@ void SI4X6X_set_modulation(uint8_t mod, uint8_t async)
 	uint8_t rx_buffer[16];
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x11);											// SET_PROPERTY (CMD)
-	SPI_master_transmit(0x20);											// MODEM (group)
-	SPI_master_transmit(0x01);											// 1 (num_props)
-	SPI_master_transmit(0x00);											// MODEM_MOD_TYPE (start_prop)
-	SPI_master_transmit(((async << 7) | (1 << 6) | (1 << 3) | mod));	// data (GPIO2 as the source of data, TX Direct Mode)
+	SPI_master_transmit((uint8_t*)0x11);											// SET_PROPERTY (CMD)
+	SPI_master_transmit((uint8_t*)0x20);											// MODEM (group)
+	SPI_master_transmit((uint8_t*)0x01);											// 1 (num_props)
+	SPI_master_transmit((uint8_t*)0x00);											// MODEM_MOD_TYPE (start_prop)
+	SPI_master_transmit((uint8_t*)(((async << 7) | (1 << 6) | (1 << 3) | mod)));	// data (GPIO2 as the source of data, TX Direct Mode)
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 }
@@ -507,25 +507,25 @@ void SI4X6X_set_data_rate(uint32_t data_rate, uint8_t txosr)
 	uint8_t rx_buffer[16];
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x11);											// SET_PROPERTY (CMD)
-	SPI_master_transmit(0x20);											// MODEM (group)
-	SPI_master_transmit(0x04);											// 4 (num_props)
-	SPI_master_transmit(0x06);											// MODEM_TX_NCO_MODE (start_prop)
-	SPI_master_transmit((txosr << 2) | 0x00);							// data (MODEM_TX_NCO_MODE) - TXOSR, hard-coded 16,369,000 Bit[25:0]
-	SPI_master_transmit(0xF9);											// data (MODEM_TX_NCO_MODE)
-	SPI_master_transmit(0xC5);											// data (MODEM_TX_NCO_MODE)
-	SPI_master_transmit(0x68);											// data (MODEM_TX_NCO_MODE)
+	SPI_master_transmit((uint8_t*)0x11);											// SET_PROPERTY (CMD)
+	SPI_master_transmit((uint8_t*)0x20);											// MODEM (group)
+	SPI_master_transmit((uint8_t*)0x04);											// 4 (num_props)
+	SPI_master_transmit((uint8_t*)0x06);											// MODEM_TX_NCO_MODE (start_prop)
+	SPI_master_transmit((uint8_t*)((txosr << 2) | 0x00));							// data (MODEM_TX_NCO_MODE) - TXOSR, hard-coded 16,369,000 Bit[25:0]
+	SPI_master_transmit((uint8_t*)0xF9);											// data (MODEM_TX_NCO_MODE)
+	SPI_master_transmit((uint8_t*)0xC5);											// data (MODEM_TX_NCO_MODE)
+	SPI_master_transmit((uint8_t*)0x68);											// data (MODEM_TX_NCO_MODE)
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x11);											// SET_PROPERTY (CMD)
-	SPI_master_transmit(0x20);											// MODEM (group)
-	SPI_master_transmit(0x03);											// 3 (num_props)
-	SPI_master_transmit(0x03);											// MODEM_DATA_RATE (start_prop)
-	SPI_master_transmit(data_rate >> 16);								// data (MODEM_DATA_RATE)
-	SPI_master_transmit(data_rate >> 8);								// data (MODEM_DATA_RATE)
-	SPI_master_transmit(data_rate);										// data (MODEM_DATA_RATE)
+	SPI_master_transmit((uint8_t*)0x11);											// SET_PROPERTY (CMD)
+	SPI_master_transmit((uint8_t*)0x20);											// MODEM (group)
+	SPI_master_transmit((uint8_t*)0x03);											// 3 (num_props)
+	SPI_master_transmit((uint8_t*)0x03);											// MODEM_DATA_RATE (start_prop)
+	SPI_master_transmit((uint8_t*)(data_rate >> 16));								// data (MODEM_DATA_RATE)
+	SPI_master_transmit((uint8_t*)(data_rate >> 8));								// data (MODEM_DATA_RATE)
+	SPI_master_transmit((uint8_t*)data_rate);										// data (MODEM_DATA_RATE)
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 }
@@ -555,11 +555,11 @@ void SI4X6X_set_PA_mode(uint8_t pa_sel, uint8_t pa_mode)
 	uint8_t rx_buffer[16];
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x11);											// SET_PROPERTY (CMD)
-	SPI_master_transmit(0x22);											// PA (group)
-	SPI_master_transmit(0x01);											// 1 (num_props)
-	SPI_master_transmit(0x00);											// PA_MODE (start_prop)
-	SPI_master_transmit((pa_sel << 2) | (pa_mode << 0));				// data (PA_MODE)
+	SPI_master_transmit((uint8_t*)0x11);											// SET_PROPERTY (CMD)
+	SPI_master_transmit((uint8_t*)0x22);											// PA (group)
+	SPI_master_transmit((uint8_t*)0x01);											// 1 (num_props)
+	SPI_master_transmit((uint8_t*)0x00);											// PA_MODE (start_prop)
+	SPI_master_transmit((uint8_t*)((pa_sel << 2) | (pa_mode << 0)));				// data (PA_MODE)
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 }
@@ -584,11 +584,11 @@ void SI4X6X_set_power_level(uint8_t level)
 	uint8_t rx_buffer[16];
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x11);											// SET_PROPERTY (CMD)
-	SPI_master_transmit(0x22);											// PA (group)
-	SPI_master_transmit(0x01);											// 1 (num_props)
-	SPI_master_transmit(0x01);											// PA_PWR_LVL (start_prop)
-	SPI_master_transmit(level);											// data (DDAC)
+	SPI_master_transmit((uint8_t*)0x11);											// SET_PROPERTY (CMD)
+	SPI_master_transmit((uint8_t*)0x22);											// PA (group)
+	SPI_master_transmit((uint8_t*)0x01);											// 1 (num_props)
+	SPI_master_transmit((uint8_t*)0x01);											// PA_PWR_LVL (start_prop)
+	SPI_master_transmit((uint8_t*)level);											// data (DDAC)
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 }
@@ -617,19 +617,19 @@ void SI4X6X_set_filter_coefficients(void)
 	uint8_t rx_buffer[16];
 
 	SPI_assert_SS();
-	SPI_master_transmit(0x11);											// SET_PROPERTY (CMD)
-	SPI_master_transmit(0x20);											// MODEM (group)
-	SPI_master_transmit(0x09);											// 9 (num_props)
-	SPI_master_transmit(0x0F);											// MODEM_TX_FILTER_COEFF (start_prop)
-	SPI_master_transmit(filter[8]);										// data (MODEM_TX_FILTER_COEFF_8)
-	SPI_master_transmit(filter[7]);										// data (MODEM_TX_FILTER_COEFF_7)
-	SPI_master_transmit(filter[6]);										// data (MODEM_TX_FILTER_COEFF_6)
-	SPI_master_transmit(filter[5]);										// data (MODEM_TX_FILTER_COEFF_5)
-	SPI_master_transmit(filter[4]);										// data (MODEM_TX_FILTER_COEFF_4)
-	SPI_master_transmit(filter[3]);										// data (MODEM_TX_FILTER_COEFF_3)
-	SPI_master_transmit(filter[2]);										// data (MODEM_TX_FILTER_COEFF_2)
-	SPI_master_transmit(filter[1]);										// data (MODEM_TX_FILTER_COEFF_1)
-	SPI_master_transmit(filter[0]);										// data (MODEM_TX_FILTER_COEFF_0)
+	SPI_master_transmit((uint8_t*)0x11);											// SET_PROPERTY (CMD)
+	SPI_master_transmit((uint8_t*)0x20);											// MODEM (group)
+	SPI_master_transmit((uint8_t*)0x09);											// 9 (num_props)
+	SPI_master_transmit((uint8_t*)0x0F);											// MODEM_TX_FILTER_COEFF (start_prop)
+	SPI_master_transmit((uint8_t*)filter[8]);										// data (MODEM_TX_FILTER_COEFF_8)
+	SPI_master_transmit((uint8_t*)filter[7]);										// data (MODEM_TX_FILTER_COEFF_7)
+	SPI_master_transmit((uint8_t*)filter[6]);										// data (MODEM_TX_FILTER_COEFF_6)
+	SPI_master_transmit((uint8_t*)filter[5]);										// data (MODEM_TX_FILTER_COEFF_5)
+	SPI_master_transmit((uint8_t*)filter[4]);										// data (MODEM_TX_FILTER_COEFF_4)
+	SPI_master_transmit((uint8_t*)filter[3]);										// data (MODEM_TX_FILTER_COEFF_3)
+	SPI_master_transmit((uint8_t*)filter[2]);										// data (MODEM_TX_FILTER_COEFF_2)
+	SPI_master_transmit((uint8_t*)filter[1]);										// data (MODEM_TX_FILTER_COEFF_1)
+	SPI_master_transmit((uint8_t*)filter[0]);										// data (MODEM_TX_FILTER_COEFF_0)
 	SPI_deassert_SS();
 	SI4X6X_rx_CTS(rx_buffer, 1);
 }
@@ -780,25 +780,25 @@ void SI4X6X_tx_GFSK_aprs(uint8_t * bitstream, uint16_t length, uint32_t frequenc
 
 				/* Data Rate */
 				SPI_assert_SS();
-				SPI_master_transmit(0x11);								// SET_PROPERTY (CMD)
-				SPI_master_transmit(0x20);								// MODEM (group)
-				SPI_master_transmit(0x03);								// 3 (num_props)
-				SPI_master_transmit(0x03);								// MODEM_DATA_RATE (start_prop)
-				SPI_master_transmit(modem_data_rate >> 16);				// data (MODEM_DATA_RATE)
-				SPI_master_transmit(modem_data_rate >> 8);				// data (MODEM_DATA_RATE)
-				SPI_master_transmit(modem_data_rate);					// data (MODEM_DATA_RATE)
+				SPI_master_transmit((uint8_t*)0x11);								// SET_PROPERTY (CMD)
+				SPI_master_transmit((uint8_t*)0x20);								// MODEM (group)
+				SPI_master_transmit((uint8_t*)0x03);								// 3 (num_props)
+				SPI_master_transmit((uint8_t*)0x03);								// MODEM_DATA_RATE (start_prop)
+				SPI_master_transmit((uint8_t*)(modem_data_rate >> 16));				// data (MODEM_DATA_RATE)
+				SPI_master_transmit((uint8_t*)(modem_data_rate >> 8));				// data (MODEM_DATA_RATE)
+				SPI_master_transmit((uint8_t*)modem_data_rate);					// data (MODEM_DATA_RATE)
 				SPI_deassert_SS();
 				SI4X6X_check_CTS();
 
 				/* Frequency Deviation */
 				SPI_assert_SS();
-				SPI_master_transmit(0x11);								// SET_PROPERTY (CMD)
-				SPI_master_transmit(0x20);								// MODEM (group)
-				SPI_master_transmit(0x03);								// 3 (num_props)
-				SPI_master_transmit(0x0A);								// MODEM_FREQ_DEV (start_prop)
-				SPI_master_transmit((modem_freq_dev >> 16) & 0xFF);		// data (MODEM_FREQ_DEV)
-				SPI_master_transmit((modem_freq_dev >> 8) & 0xFF);		// data (MODEM_FREQ_DEV)
-				SPI_master_transmit(modem_freq_dev & 0xFF);				// data (MODEM_FREQ_DEV)
+				SPI_master_transmit((uint8_t*)0x11);								// SET_PROPERTY (CMD)
+				SPI_master_transmit((uint8_t*)0x20);								// MODEM (group)
+				SPI_master_transmit((uint8_t*)0x03);								// 3 (num_props)
+				SPI_master_transmit((uint8_t*)0x0A);								// MODEM_FREQ_DEV (start_prop)
+				SPI_master_transmit((uint8_t*)((modem_freq_dev >> 16) & 0xFF));		// data (MODEM_FREQ_DEV)
+				SPI_master_transmit((uint8_t*)((modem_freq_dev >> 8) & 0xFF));		// data (MODEM_FREQ_DEV)
+				SPI_master_transmit((uint8_t*)(modem_freq_dev & 0xFF));				// data (MODEM_FREQ_DEV)
 				SPI_deassert_SS();
 			}
 		}
