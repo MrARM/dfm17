@@ -32,7 +32,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "SI4063.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -58,6 +58,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define RADIO_GPIO2_Pin GPIO_PIN_0
+#define RADIO_GPIO2_GPIO_Port GPIOD
+#define RADIO_SDN_Pin GPIO_PIN_3
+#define RADIO_SDN_GPIO_Port GPIOC
 #define GPS_TX_Pin GPIO_PIN_2
 #define GPS_TX_GPIO_Port GPIOA
 #define GPS_RX_Pin GPIO_PIN_3
@@ -83,5 +87,3 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
