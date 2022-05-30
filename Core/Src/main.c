@@ -97,17 +97,22 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   int led_num = 0;
-  //SI4063_init(25000000, 0, &hspi1);
-  //SI4063_set_PA_mode(2, 0);
-  //SI4063_set_power_level(10);
+
+  HAL_GPIO_WritePin(GPIOC, green_LED_Pin, GPIO_PIN_SET);
+  SI4063_init(25000000, 0, &hspi1);
+  SI4063_set_PA_mode(2, 0);
+  SI4063_set_power_level(20);
+  SI4063_change_state(1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	//SI4063_tx_CW_blips(5, 100, 434300000, 25000000, 0);
-	//HAL_Delay(2000);
+	  HAL_GPIO_WritePin(GPIOC, Yellow_LED_Pin, GPIO_PIN_SET);
+	  SI4063_tx_CW_blips(5, 500, 434200000, 16369000, 0);
+	  HAL_GPIO_WritePin(GPIOC, Yellow_LED_Pin, GPIO_PIN_RESET);
+	  HAL_Delay(2000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -274,10 +279,16 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(RADIO_GPIO2_GPIO_Port, RADIO_GPIO2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(POWER_SYSTEM_GPIO_Port, POWER_SYSTEM_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, RADIO_SDN_Pin|green_LED_Pin|Yellow_LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, RADIO_CS_Pin|Red_LED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(RADIO_CS_GPIO_Port, RADIO_CS_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(Red_LED_GPIO_Port, Red_LED_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin : RADIO_GPIO2_Pin */
   GPIO_InitStruct.Pin = RADIO_GPIO2_Pin;
@@ -286,8 +297,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(RADIO_GPIO2_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : RADIO_SDN_Pin green_LED_Pin Yellow_LED_Pin */
-  GPIO_InitStruct.Pin = RADIO_SDN_Pin|green_LED_Pin|Yellow_LED_Pin;
+  /*Configure GPIO pins : POWER_SYSTEM_Pin RADIO_SDN_Pin green_LED_Pin Yellow_LED_Pin */
+  GPIO_InitStruct.Pin = POWER_SYSTEM_Pin|RADIO_SDN_Pin|green_LED_Pin|Yellow_LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -299,6 +310,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : Button_Pin */
+  GPIO_InitStruct.Pin = Button_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Button_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure peripheral I/O remapping */
   __HAL_AFIO_REMAP_PD01_ENABLE();
@@ -317,6 +334,7 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
+  HAL_GPIO_WritePin(GPIOC, green_LED_Pin, GPIO_PIN_RESET);
   __disable_irq();
   while (1)
   {

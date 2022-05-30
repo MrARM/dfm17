@@ -60,6 +60,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define RADIO_GPIO2_Pin GPIO_PIN_0
 #define RADIO_GPIO2_GPIO_Port GPIOD
+#define POWER_SYSTEM_Pin GPIO_PIN_0
+#define POWER_SYSTEM_GPIO_Port GPIOC
 #define RADIO_SDN_Pin GPIO_PIN_3
 #define RADIO_SDN_GPIO_Port GPIOC
 #define GPS_TX_Pin GPIO_PIN_2
@@ -74,6 +76,8 @@ void Error_Handler(void);
 #define green_LED_GPIO_Port GPIOC
 #define Yellow_LED_Pin GPIO_PIN_7
 #define Yellow_LED_GPIO_Port GPIOC
+#define Button_Pin GPIO_PIN_8
+#define Button_GPIO_Port GPIOC
 #define USB_TX_Pin GPIO_PIN_9
 #define USB_TX_GPIO_Port GPIOA
 #define USB_RX_Pin GPIO_PIN_10
